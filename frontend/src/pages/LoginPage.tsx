@@ -20,23 +20,44 @@ export const LoginPage: React.FC = () => {
   const searchParams = new URLSearchParams(location.search);
   const redirectTo = searchParams.get('redirect') || '/';
   
+  // const handleSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   setError('');
+  //   setIsLoading(true);
+  
+  //   try {
+  //     const res = await axiosInstance.post('/api/auth/login', { email, password });
+  //     localStorage.setItem('token', res.data.token);
+  //     navigate('/');
+  //     // Optional: You might want to store user info too, or call setUser in context
+  //     // navigate(redirectTo === 'checkout' ? '/checkout' : `/${redirectTo}`);
+  //   } catch (err: any) {
+  //     if (err.response && err.response.status === 401) {
+  //       setError('Invalid email or password');
+  //     } else {
+  //       console.log(err);
+  //       setError('An error occurred. Please try again.');
+  //     }
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
-  
+    
     try {
-      const res = await axiosInstance.post('/api/auth/login', { email, password });
-      localStorage.setItem('token', res.data.token);
-  
-      // Optional: You might want to store user info too, or call setUser in context
-      navigate(redirectTo === 'checkout' ? '/checkout' : `/${redirectTo}`);
-    } catch (err: any) {
-      if (err.response && err.response.status === 401) {
-        setError('Invalid email or password');
+      const success = await login(email, password);
+      if (success) {
+        navigate(redirectTo === 'checkout' ? '/checkout' : `${redirectTo}`);
       } else {
-        setError('An error occurred. Please try again.');
+        setError('Invalid email or password');
       }
+    } catch (err) {
+      console.log(err);
+      console.log(redirectTo);
+      setError('An error occurred. Please try again.');
     } finally {
       setIsLoading(false);
     }

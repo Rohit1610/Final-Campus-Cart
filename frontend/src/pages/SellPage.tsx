@@ -25,10 +25,11 @@ export const SellPage: React.FC = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
+    console.log('Logged-in user:', user); // Log the user object
     if (!isAuthenticated) {
       navigate('/login?redirect=sell');
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, user]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -91,16 +92,17 @@ export const SellPage: React.FC = () => {
       ...formData,
       price: parseFloat(formData.price),
       quantity: parseInt(formData.quantity),
-      sellerId: user?.id,
-      sellerType: user?.type,
+      sellerId: user?.id, // Ensure the seller ID is set correctly
+      sellerType: user?.type, // Ensure seller type is set
     };
 
     try {
-      await axiosInstance.post('/api/products', productData);
+      const response = await axiosInstance.post('/api/products', productData);
       setIsLoading(false);
-      navigate('/');
-    } catch (err) {
+      navigate('/'); // Redirect to homepage after successful product creation
+    } catch (err: any) {
       console.error('Failed to create product:', err);
+      setErrors({ submit: 'Failed to create product. Please try again.' });
       setIsLoading(false);
     }
   };
@@ -184,8 +186,7 @@ export const SellPage: React.FC = () => {
                     name="category"
                     value={formData.category}
                     onChange={(value) =>
-                      setFormData(prev => ({ ...prev, category: value as Category }))
-                    }
+                      setFormData(prev => ({ ...prev, category: value as Category }))}
                     options={categoryOptions}
                     error={errors.category}
                     required
@@ -194,8 +195,8 @@ export const SellPage: React.FC = () => {
 
                   <Input
                     label="Seller Type"
-                    value={user?.type || ''}
-                    disabled
+                    value={user?.type || ''}  // Seller type is fetched from the logged-in user's data
+                    disabled  // Seller type is not editable
                     fullWidth
                   />
                 </div>
@@ -234,6 +235,8 @@ export const SellPage: React.FC = () => {
                     List Item for Sale
                   </Button>
                 </div>
+
+                {errors.submit && <div className="text-red-500 text-center mt-2">{errors.submit}</div>}
               </div>
             </form>
           </div>
